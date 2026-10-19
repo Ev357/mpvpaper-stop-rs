@@ -1,3 +1,4 @@
+mod args;
 mod atomic_pause_state;
 mod calculate_screen_coverage;
 mod calculate_window_coverage;
@@ -8,20 +9,43 @@ mod send_mpv_pause;
 
 use std::thread;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
+use clap::Parser;
+use daemonize::Daemonize;
 use hyprland::{event_listener::EventListener, shared::WorkspaceType};
 
 use crate::{
+    args::Args,
     check_and_update::check_and_update,
-    constants::{FALLBACK_CHECK_INTERVAL, LISTENER_RETRY_INTERVAL},
+    constants::{config, init_config},
 };
 
 fn main() -> Result<()> {
+    let mut args = Args::parse();
+
+    if args.socket_path.is_relative()
+        && let Ok(current_dir) = std::env::current_dir()
+    {
+        args.socket_path = current_dir.join(&args.socket_path);
+    }
+
+    if args.daemonize {
+        Daemonize::new()
+            .start()
+            .context("failed to daemonize process")?;
+    }
+
+    init_config(args);
+
+    let config = config();
+    let fallback_interval = config.fallback_check_interval();
+    let retry_interval = config.listener_retry_interval();
+
     check_and_update();
 
-    thread::spawn(|| {
+    thread::spawn(move || {
         loop {
-            thread::sleep(FALLBACK_CHECK_INTERVAL);
+            thread::sleep(fallback_interval);
             check_and_update();
         }
     });
@@ -42,9 +66,9 @@ fn main() -> Result<()> {
         if let Err(error) = listener.start_listener() {
             eprintln!(
                 "Hyprland event listener stopped: {error:#}. Retrying in {} seconds...",
-                LISTENER_RETRY_INTERVAL.as_secs()
+                retry_interval.as_secs()
             );
-            thread::sleep(LISTENER_RETRY_INTERVAL);
+            thread::sleep(retry_interval);
         }
     }
 }

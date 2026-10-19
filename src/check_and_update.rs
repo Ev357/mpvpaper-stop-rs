@@ -2,7 +2,7 @@ use std::io;
 
 use crate::{
     calculate_screen_coverage::calculate_screen_coverage,
-    constants::{COVERAGE_THRESHOLD, LAST_PAUSE_STATE, MPV_SOCKET_PATH},
+    constants::{LAST_PAUSE_STATE, config},
     pause_state::PauseState,
     send_mpv_pause::send_mpv_pause,
 };
@@ -16,7 +16,8 @@ pub fn check_and_update() {
         }
     };
 
-    let should_pause = coverage > COVERAGE_THRESHOLD;
+    let config = config();
+    let should_pause = coverage > config.coverage_threshold;
     let target_state = PauseState::from(should_pause);
 
     if LAST_PAUSE_STATE.load() == target_state {
@@ -38,7 +39,10 @@ pub fn check_and_update() {
                 });
 
         if !is_socket_offline {
-            eprintln!("Failed to send pause command to {MPV_SOCKET_PATH}: {error:#}");
+            eprintln!(
+                "Failed to send pause command to {}: {error:#}",
+                config.socket_path.display()
+            );
         }
     } else {
         LAST_PAUSE_STATE.store(target_state);

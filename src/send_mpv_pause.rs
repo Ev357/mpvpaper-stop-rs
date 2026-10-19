@@ -2,11 +2,11 @@ use std::{io::Write, os::unix::net::UnixStream};
 
 use anyhow::{Context, Result};
 
-use crate::constants::MPV_SOCKET_PATH;
+use crate::constants::config;
 
 pub fn send_mpv_pause(pause: bool) -> Result<()> {
     let mut stream =
-        UnixStream::connect(MPV_SOCKET_PATH).context("failed to connect to mpv socket")?;
+        UnixStream::connect(&config().socket_path).context("failed to connect to mpv socket")?;
     let command = serde_json::json!({
         "command": ["set_property", "pause", pause]
     });

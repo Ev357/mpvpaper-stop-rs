@@ -1,10 +1,26 @@
-use std::time::Duration;
+use std::{path::PathBuf, sync::OnceLock};
 
-use crate::atomic_pause_state::AtomicPauseState;
+use crate::{args::Args, atomic_pause_state::AtomicPauseState};
 
-pub const MPV_SOCKET_PATH: &str = "/tmp/mpvsocket";
-pub const COVERAGE_THRESHOLD: u8 = 90;
-pub const FALLBACK_CHECK_INTERVAL: Duration = Duration::from_secs(1);
-pub const LISTENER_RETRY_INTERVAL: Duration = Duration::from_secs(2);
+pub const DEFAULT_MPV_SOCKET_PATH: &str = "/tmp/mpvsocket";
+pub const DEFAULT_COVERAGE_THRESHOLD: u8 = 90;
+pub const DEFAULT_FALLBACK_CHECK_INTERVAL_SECS: u64 = 1;
+pub const DEFAULT_LISTENER_RETRY_INTERVAL_SECS: u64 = 2;
 
 pub static LAST_PAUSE_STATE: AtomicPauseState = AtomicPauseState::new();
+
+static CONFIG: OnceLock<Args> = OnceLock::new();
+
+pub fn init_config(args: Args) {
+    let _ = CONFIG.set(args);
+}
+
+pub fn config() -> &'static Args {
+    CONFIG.get_or_init(|| Args {
+        daemonize: false,
+        socket_path: PathBuf::from(DEFAULT_MPV_SOCKET_PATH),
+        coverage_threshold: DEFAULT_COVERAGE_THRESHOLD,
+        fallback_interval: DEFAULT_FALLBACK_CHECK_INTERVAL_SECS,
+        retry_interval: DEFAULT_LISTENER_RETRY_INTERVAL_SECS,
+    })
+}
