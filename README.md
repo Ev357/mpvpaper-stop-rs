@@ -46,8 +46,8 @@ Options:
   -d, --daemonize
   -s, --socket <SOCKET_PATH>                   [default: /tmp/mpvsocket]
   -c, --coverage <COVERAGE_THRESHOLD>          [default: 90]
-  -f, --fallback-interval <FALLBACK_INTERVAL>  [default: 1]
-  -r, --retry-interval <RETRY_INTERVAL>        [default: 2]
+  -f, --fallback-interval <FALLBACK_INTERVAL>  [default: 1000]
+  -r, --retry-interval <RETRY_INTERVAL>        [default: 2000]
   -h, --help                                   Print help
   -V, --version                                Print version
 ```
