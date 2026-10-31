@@ -44,6 +44,9 @@ pub struct Args {
         default_value_t = DEFAULT_LISTENER_RETRY_INTERVAL_MILLIS
     )]
     pub retry_interval: u64,
+
+    #[arg(short = 'i', long = "ignore-class")]
+    pub ignore_classes: Vec<String>,
 }
 
 impl Args {

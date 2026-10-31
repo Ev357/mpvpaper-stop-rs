@@ -1,5 +1,7 @@
 use hyprland::data::{Client, FullscreenMode, Monitor};
 
+use crate::constants::config;
+
 pub fn calculate_window_coverage(monitor: &Monitor, clients: &[Client]) -> u8 {
     let scale = if monitor.scale > 0.0 {
         monitor.scale
@@ -16,8 +18,14 @@ pub fn calculate_window_coverage(monitor: &Monitor, clients: &[Client]) -> u8 {
     let active_workspace = monitor.active_workspace.id;
     let mut total_intersection_area: i64 = 0;
 
+    let ignore_classes = &config().ignore_classes;
+
     for client in clients {
         if client.workspace.id != active_workspace {
+            continue;
+        }
+
+        if ignore_classes.iter().any(|class| class == &client.class) {
             continue;
         }
 

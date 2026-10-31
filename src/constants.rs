@@ -22,5 +22,6 @@ pub fn config() -> &'static Args {
         coverage_threshold: DEFAULT_COVERAGE_THRESHOLD,
         fallback_interval: DEFAULT_FALLBACK_CHECK_INTERVAL_MILLIS,
         retry_interval: DEFAULT_LISTENER_RETRY_INTERVAL_MILLIS,
+        ignore_classes: Vec::new(),
     })
 }
