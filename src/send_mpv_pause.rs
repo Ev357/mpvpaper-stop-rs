@@ -1,19 +1,21 @@
-use std::{io::Write, os::unix::net::UnixStream};
+use std::path::Path;
 
-use anyhow::{Context, Result};
+use anyhow::Result;
+use tokio::{io::AsyncWriteExt, net::UnixStream};
 
-use crate::constants::config;
+pub async fn send_mpv_pause<P: AsRef<Path>>(socket_path: P, pause: bool) -> Result<()> {
+    let mut stream = UnixStream::connect(socket_path).await?;
 
-pub fn send_mpv_pause(pause: bool) -> Result<()> {
-    let mut stream =
-        UnixStream::connect(&config().socket_path).context("failed to connect to mpv socket")?;
     let command = serde_json::json!({
         "command": ["set_property", "pause", pause]
     });
+
     let mut payload = serde_json::to_vec(&command)?;
     payload.push(b'\n');
-    stream
-        .write_all(&payload)
-        .context("failed to write to mpv socket")?;
+
+    stream.write_all(&payload).await?;
+
+    stream.flush().await?;
+
     Ok(())
 }

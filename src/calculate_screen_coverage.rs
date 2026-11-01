@@ -1,13 +1,23 @@
 use anyhow::{Context, Result};
-use hyprland::{
-    data::{Clients, Monitor},
-    prelude::*,
+use tokio::try_join;
+
+use crate::{
+    args::Args,
+    calculate_window_coverage::calculate_window_coverage,
+    hyprland::{Client, Monitor, query_hyprland},
 };
 
-use crate::calculate_window_coverage::calculate_window_coverage;
+pub async fn calculate_screen_coverage(args: &Args) -> Result<u8> {
+    let (monitors_res, clients_res) = try_join!(
+        query_hyprland::<Vec<Monitor>>("j/monitors"),
+        query_hyprland::<Vec<Client>>("j/clients")
+    )?;
 
-pub fn calculate_screen_coverage() -> Result<u8> {
-    let monitor = Monitor::get_active().context("failed to get active monitor")?;
-    let clients = Clients::get().context("failed to get clients")?.to_vec();
-    Ok(calculate_window_coverage(&monitor, &clients))
+    let monitor = monitors_res
+        .iter()
+        .find(|monitor| monitor.focused)
+        .or_else(|| monitors_res.first())
+        .context("no monitors found")?;
+
+    Ok(calculate_window_coverage(args, monitor, &clients_res))
 }

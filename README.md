@@ -47,7 +47,7 @@ Options:
   -s, --socket <SOCKET_PATH>                   [default: /tmp/mpvsocket]
   -c, --coverage <COVERAGE_THRESHOLD>          [default: 90]
   -f, --fallback-interval <FALLBACK_INTERVAL>  [default: 1000]
-  -r, --retry-interval <RETRY_INTERVAL>        [default: 2000]
+  -i, --ignore-classes <IGNORE_CLASSES>
   -h, --help                                   Print help
   -V, --version                                Print version
 ```

@@ -1,8 +1,9 @@
-use hyprland::data::{Client, FullscreenMode, Monitor};
+use crate::{
+    args::Args,
+    hyprland::{Client, Monitor},
+};
 
-use crate::constants::config;
-
-pub fn calculate_window_coverage(monitor: &Monitor, clients: &[Client]) -> u8 {
+pub fn calculate_window_coverage(args: &Args, monitor: &Monitor, clients: &[Client]) -> u8 {
     let scale = if monitor.scale > 0.0 {
         monitor.scale
     } else {
@@ -18,31 +19,31 @@ pub fn calculate_window_coverage(monitor: &Monitor, clients: &[Client]) -> u8 {
     let active_workspace = monitor.active_workspace.id;
     let mut total_intersection_area: i64 = 0;
 
-    let ignore_classes = &config().ignore_classes;
-
     for client in clients {
         if client.workspace.id != active_workspace {
             continue;
         }
 
-        if ignore_classes.iter().any(|class| class == &client.class) {
+        if args
+            .ignore_classes
+            .iter()
+            .any(|class| class == &client.class)
+        {
             continue;
         }
 
-        let (FullscreenMode::None, FullscreenMode::None) =
-            (client.fullscreen, client.fullscreen_client)
-        else {
+        if client.fullscreen != 0 || client.fullscreen_client != 0 {
             return 100;
-        };
+        }
 
         if client.floating {
             continue;
         }
 
-        let window_x = client.at.0 as i32;
-        let window_y = client.at.1 as i32;
-        let window_width = (client.size.0 as i32).max(0);
-        let window_height = (client.size.1 as i32).max(0);
+        let window_x = client.at.0;
+        let window_y = client.at.1;
+        let window_width = client.size.0.max(0);
+        let window_height = client.size.1.max(0);
 
         let intersection_x_start = window_x.max(monitor_x);
         let intersection_y_start = window_y.max(monitor_y);
