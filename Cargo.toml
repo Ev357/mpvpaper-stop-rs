@@ -1,7 +1,7 @@
 [package]
 name = "mpvpaper-stop-rs"
 description = "Automatically pause/resume mpvpaper based on visible window coverage in Hyprland"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2024"
 license = "MIT"
 homepage = "https://github.com/Ev357/mpvpaper-stop-rs"
@@ -9,7 +9,7 @@ homepage = "https://github.com/Ev357/mpvpaper-stop-rs"
 [dependencies]
 anyhow = "1.0"
 clap = { version = "4.6.7", features = ["derive"] }
-daemonize = "0.5.0"
+fork = "0.11.0"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1.54.1", features = ["full"] }
