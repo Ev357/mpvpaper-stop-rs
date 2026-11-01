@@ -3,7 +3,6 @@ use std::{env, time::Duration};
 
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
-    net::UnixStream,
     signal, time,
 };
 mod calculate_screen_coverage;
@@ -17,9 +16,7 @@ use anyhow::Result;
 use clap::Parser;
 use daemonize::Daemonize;
 
-use crate::{
-    args::Args, check_and_update::check_and_update, hyprland::get_hyprland_event_socket_path,
-};
+use crate::{args::Args, check_and_update::check_and_update, hyprland::connect_event_socket};
 
 fn main() -> Result<()> {
     let mut args = Args::parse();
@@ -43,8 +40,7 @@ fn main() -> Result<()> {
 async fn run(args: Args) -> Result<()> {
     check_and_update(&args).await?;
 
-    let socket_path = get_hyprland_event_socket_path()?;
-    let stream = UnixStream::connect(socket_path).await?;
+    let stream = connect_event_socket(Duration::from_millis(args.retry_interval)).await?;
     let mut reader = BufReader::new(stream);
     let mut line = String::new();
 

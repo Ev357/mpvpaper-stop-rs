@@ -3,7 +3,8 @@ use std::path::PathBuf;
 use clap::Parser;
 
 use crate::constants::{
-    DEFAULT_COVERAGE_THRESHOLD, DEFAULT_FALLBACK_CHECK_INTERVAL_MILLIS, DEFAULT_MPV_SOCKET_PATH,
+    DEFAULT_COVERAGE_THRESHOLD, DEFAULT_FALLBACK_CHECK_INTERVAL_MILLIS,
+    DEFAULT_LISTENER_RETRY_INTERVAL_MILLIS, DEFAULT_MPV_SOCKET_PATH,
 };
 
 #[derive(Parser, Debug, Clone)]
@@ -36,6 +37,13 @@ pub struct Args {
         default_value_t = DEFAULT_FALLBACK_CHECK_INTERVAL_MILLIS
     )]
     pub fallback_interval: u64,
+
+    #[arg(
+        short = 'r',
+        long = "retry-interval",
+        default_value_t = DEFAULT_LISTENER_RETRY_INTERVAL_MILLIS
+    )]
+    pub retry_interval: u64,
 
     #[arg(short = 'i', long = "ignore-classes")]
     pub ignore_classes: Vec<String>,

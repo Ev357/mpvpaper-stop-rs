@@ -1,10 +1,11 @@
-use std::{env, path::PathBuf};
+use std::{env, path::PathBuf, time::Duration};
 
 use anyhow::Result;
 use serde::Deserialize;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::UnixStream,
+    time,
 };
 
 #[derive(Debug, Deserialize, Clone)]
@@ -59,6 +60,18 @@ pub async fn query_hyprland<T: serde::de::DeserializeOwned>(command: &str) -> Re
     let data: T = serde_json::from_str(&response)?;
 
     Ok(data)
+}
+
+pub async fn connect_event_socket(retry_interval: Duration) -> Result<UnixStream> {
+    loop {
+        if let Ok(path) = get_hyprland_event_socket_path()
+            && let Ok(stream) = UnixStream::connect(&path).await
+        {
+            return Ok(stream);
+        }
+
+        time::sleep(retry_interval).await;
+    }
 }
 
 fn get_hyprland_socket_dir() -> Result<PathBuf> {
