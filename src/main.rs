@@ -1,5 +1,5 @@
 mod args;
-use std::time::Duration;
+use std::{env, time::Duration};
 
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
@@ -21,12 +21,11 @@ use crate::{
     args::Args, check_and_update::check_and_update, hyprland::get_hyprland_event_socket_path,
 };
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let mut args = Args::parse();
 
     if args.socket_path.is_relative()
-        && let Ok(current_dir) = std::env::current_dir()
+        && let Ok(current_dir) = env::current_dir()
     {
         args.socket_path = current_dir.join(&args.socket_path);
     }
@@ -35,6 +34,13 @@ async fn main() -> Result<()> {
         Daemonize::new().start()?;
     }
 
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()?
+        .block_on(run(args))
+}
+
+async fn run(args: Args) -> Result<()> {
     check_and_update(&args).await?;
 
     let socket_path = get_hyprland_event_socket_path()?;
