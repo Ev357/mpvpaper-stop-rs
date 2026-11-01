@@ -1,7 +1,7 @@
 [package]
 name = "mpvpaper-stop-rs"
 description = "Automatically pause/resume mpvpaper based on visible window coverage in Hyprland"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 license = "MIT"
 homepage = "https://github.com/Ev357/mpvpaper-stop-rs"
