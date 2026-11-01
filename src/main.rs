@@ -54,15 +54,23 @@ async fn main() -> Result<()> {
                     break;
                 }
 
-                let trimmed = line.trim_end();
-                let _ = match trimmed.split_once(">>") {
+                if !matches!(
+                    line.trim_end().split_once(">>"),
                     Some((
-                        event @ ("openwindow" | "closewindow" | "activewindow" | "activewindowv2" | "workspace"
-                        | "workspacev2" | "fullscreen" | "focusedmon" | "focusedmonv2"),
-                        data,
-                    )) => (event, data),
-                    _ => continue,
-                };
+                        "openwindow"
+                            | "closewindow"
+                            | "activewindow"
+                            | "activewindowv2"
+                            | "workspace"
+                            | "workspacev2"
+                            | "fullscreen"
+                            | "focusedmon"
+                            | "focusedmonv2",
+                        _,
+                    ))
+                ) {
+                    continue;
+                }
 
                 check_and_update(&args).await?;
             }
