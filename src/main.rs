@@ -32,7 +32,7 @@ fn main() -> Result<()> {
 }
 
 async fn run(args: Args) -> Result<()> {
-    check_and_update(&args).await?;
+    let _ = check_and_update(&args).await;
 
     let stream = connect_event_socket(Duration::from_millis(args.retry_interval)).await?;
     let mut reader = BufReader::new(stream);
@@ -68,11 +68,11 @@ async fn run(args: Args) -> Result<()> {
                     continue;
                 }
 
-                check_and_update(&args).await?;
+                let _ = check_and_update(&args).await;
             }
 
             _ = interval.tick() => {
-                check_and_update(&args).await?;
+                let _ = check_and_update(&args).await;
             }
 
             _ = signal::ctrl_c() => {
